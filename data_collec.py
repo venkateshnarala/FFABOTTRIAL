@@ -1,10 +1,16 @@
-import pandas as pd
-import numpy as np
 
-BASE_PATH = r"C:\Documents\NADIAI\DATA"
+import os
+import pandas as pd
+
+# 1. Define the relative base path using forward slashes for Linux cloud compatibility
+BASE_PATH = "DATA"
 
 def load_stations():
-    df = pd.read_csv(f"{BASE_PATH}\\camels_ind_name.csv")
+    # 2. Dynamically construct the file path safely across all Operating Systems
+    file_path = os.path.join(BASE_PATH, "camels_ind_name.csv")
+    
+    # 3. Read the dataset safely
+    df = pd.read_csv(file_path)
     return df.sort_values(by="cwc_site_name")
 
 def get_station_full_metadata(gauge_id):
