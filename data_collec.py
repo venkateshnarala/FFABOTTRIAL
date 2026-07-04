@@ -1,22 +1,33 @@
-
 import os
 import pandas as pd
+import numpy as np
 
-# 1. Define the relative base path using forward slashes for Linux cloud compatibility
+# 1. Define the relative base path using forward slashes for cross-platform compatibility
 BASE_PATH = "DATA"
 
 def load_stations():
-    # 2. Dynamically construct the file path safely across all Operating Systems
+    """
+    Dynamically constructs the file path safely across all Operating Systems.
+    Reads and returns the station lookup reference.
+    """
     file_path = os.path.join(BASE_PATH, "camels_ind_name.csv")
-    
-    # 3. Read the dataset safely
     df = pd.read_csv(file_path)
     return df.sort_values(by="cwc_site_name")
 
 def get_station_full_metadata(gauge_id):
-    df_name = pd.read_csv(f"{BASE_PATH}\\camels_ind_name.csv")
-    df_land = pd.read_csv(f"{BASE_PATH}\\camels_ind_land.csv")
-    df_topo = pd.read_csv(f"{BASE_PATH}\\camels_ind_topo.csv")
+    """
+    Safely resolves path environments to parse structural metadata for name, land, and topo profiles.
+    Combines fields into a single environment dictionary object.
+    """
+    # Dynamic path construction replacing hardcoded Windows separators
+    path_name = os.path.join(BASE_PATH, "camels_ind_name.csv")
+    path_land = os.path.join(BASE_PATH, "camels_ind_land.csv")
+    path_topo = os.path.join(BASE_PATH, "camels_ind_topo.csv")
+    
+    # Read the datasets safely
+    df_name = pd.read_csv(path_name)
+    df_land = pd.read_csv(path_land)
+    df_topo = pd.read_csv(path_topo)
     
     m_name = df_name[df_name['gauge_id'] == gauge_id].to_dict(orient='records')
     m_land = df_land[df_land['gauge_id'] == gauge_id].to_dict(orient='records')
@@ -29,7 +40,14 @@ def get_station_full_metadata(gauge_id):
     return meta
 
 def extract_streamflow(gauge_id):
-    df_flow = pd.read_csv(f"{BASE_PATH}\\streamflow_observed.csv")
+    """
+    Loads raw observed streamflow vectors using dynamic platform paths.
+    Processes threshold filters to isolate the Annual Maximum Series (AMS).
+    """
+    # FIXED: Replaced hardcoded backslash path with os.path.join for Linux cloud containers
+    path_flow = os.path.join(BASE_PATH, "streamflow_observed.csv")
+    df_flow = pd.read_csv(path_flow)
+    
     col_name = str(gauge_id)
     if col_name not in df_flow.columns:
         return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
